@@ -29,4 +29,10 @@ def plot_glass_types_bar(out="glass_types.png"):
    fig.savefig(out, bbox_inches="tight")
    plt.close(fig) 
 
-   
+ def test_cocktails_at_least_100(self):
+       conn = get_connection()
+       curr = conn.cursor()
+       curr.execute("SELECT COUNT(*) FROM Cocktails")
+       cocktail_count = curr.fetchone()[0]
+       conn.close()
+       self.assertGreaterEqual(cocktail_count, 100)
