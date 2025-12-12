@@ -1,3 +1,24 @@
+import os
+import sqlite3
+import matplotlib.pyplot as plt
+import unittest
+from data import DB_NAME, create_database
+
+
+def get_connection():
+   return sqlite3.connect(DB_NAME)
+
+
+def get_brewery_type_counts():
+   conn = get_connection()
+   curr = conn.cursor()
+   curr.execute("SELECT BreweryTypes.name, COUNT(*) FROM Breweries JOIN BreweryTypes ON Breweries.type_id = BreweryTypes.type_id JOIN BreweryNames ON Breweries.name_id = BreweryNames.name_id GROUP BY BreweryTypes.name ORDER BY COUNT(*) DESC")
+   result = curr.fetchall()
+   conn.close()
+   return result
+
+
+
 def get_glass_type_counts():
    conn = get_connection()
    curr = conn.cursor()
@@ -5,6 +26,47 @@ def get_glass_type_counts():
    result = curr.fetchall()
    conn.close()
    return result 
+
+
+def write_calculations_to_file(path="results_summary.txt"):
+   brewery_types = get_brewery_type_counts()
+   glass_types = get_glass_type_counts()
+   top_ingredients = get_top_ingredients()
+   state_counts = get_brewery_counts_by_state()
+   country_counts = get_brewery_counts_by_country()
+   summary = get_meal_ingredient_summary()
+   lines = []
+   lines.append("Brewery Types by Count\n")
+   for label, count in brewery_types:
+       lines.append(f"  {label}: {count}\n")
+   lines.append("\n")
+   lines.append("Cocktail Glass Types by Count\n")
+   for label, count in glass_types:
+       lines.append(f"  {label}: {count}\n")
+   lines.append("\n")
+   lines.append("Top Ingredients in Meals\n")
+   for label, count in top_ingredients:
+       lines.append(f"  {label}: {count}\n")
+   lines.append("\n")
+   lines.append("Top States by Number of Breweries\n")
+   for label, count in state_counts:
+       lines.append(f"  {label}: {count}\n")
+   lines.append("\n")
+   lines.append("Top Countries by Number of Breweries\n")
+   for label, count in country_counts:
+       lines.append(f"  {label}: {count}\n")
+   lines.append("\n")
+   lines.append("Meal and Ingredient Summary\n")
+   lines.append(f"  Total meals: {int(summary['total_meals'])}\n")
+   lines.append(f"  Average ingredients per meal: {summary['avg_ingredients_per_meal']:.2f}\n")
+   with open(path, "w", encoding="utf-8") as f:
+       f.writelines(lines)
+
+
+def ensure_folder(filepath):
+   folder = os.path.dirname(filepath)
+   if folder and not os.path.exists(folder):
+       os.makedirs(folder)
 
 def plot_glass_types_bar(out="glass_types.png"):
    data = get_glass_type_counts()
@@ -29,10 +91,27 @@ def plot_glass_types_bar(out="glass_types.png"):
    fig.savefig(out, bbox_inches="tight")
    plt.close(fig) 
 
- def test_cocktails_at_least_100(self):
-       conn = get_connection()
-       curr = conn.cursor()
-       curr.execute("SELECT COUNT(*) FROM Cocktails")
-       cocktail_count = curr.fetchone()[0]
-       conn.close()
-       self.assertGreaterEqual(cocktail_count, 100)
+def run_all_analysis():
+    write_calculations_to_file("results_summary.txt")
+    plot_brewery_types_pie("brewery_distribution.png")
+    plot_glass_types_bar("glass_types.png")
+    plot_top_ingredients_scatter("ingredients_top12.png")
+    plot_top_states_for_breweries("brewery_states_top10.png")
+
+class TestProject(unittest.TestCase):
+    def setUp(self):
+        create_database()
+
+    def test_cocktails_at_least_100(self):
+        conn = get_connection()
+        curr = conn.cursor()
+        curr.execute("SELECT COUNT(*) FROM Cocktails")
+        cocktail_count = curr.fetchone()[0]
+        conn.close()
+        self.assertGreaterEqual(cocktail_count, 100)
+
+
+if __name__ == "__main__":
+    create_database()
+    unittest.main(exit=False, verbosity=2)
+    run_all_analysis()
