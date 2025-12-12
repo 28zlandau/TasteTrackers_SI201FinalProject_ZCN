@@ -68,6 +68,13 @@ def get_or_create_lookup(curr, table_name, id_column, name_column, raw_value, de
 
 
 
+def get_or_create_brewery_name(curr, raw_value):
+   cleaned = normalize_string(raw_value)
+   curr.execute("INSERT OR IGNORE INTO BreweryNames (name) VALUES (?)", (cleaned,))
+   curr.execute("SELECT name_id FROM BreweryNames WHERE name = ?", (cleaned,))
+   row = curr.fetchone()
+   return int(row[0]) if row else None
+
 
 
 
@@ -76,18 +83,15 @@ def load_cocktails(limit=25):
    conn = get_connection()
    curr = conn.cursor()
 
-
    remaining_allowed = enforce_api_limit(curr, "Cocktails", 150)
    if remaining_allowed is False:
        conn.close()
        return
    limit = min(limit, remaining_allowed)
 
-
    letters = "abcdefghijklmnopqrstuvwxyz"
    offset = get_offset(curr, "cocktails")
    added_cocktails = 0
-
 
    for index in range(offset, len(letters)):
        if added_cocktails >= limit:
@@ -116,14 +120,14 @@ def load_cocktails(limit=25):
 
    set_offset(curr, "cocktails", offset)
    conn.commit()
-   conn.close()
+   conn.close() 
+   
 
 def main():
    create_database()
    load_meals()
    load_cocktails()
    load_breweries()
-
 
 if __name__ == "__main__":
    main()
