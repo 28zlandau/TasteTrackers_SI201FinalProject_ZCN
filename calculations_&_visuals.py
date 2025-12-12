@@ -139,6 +139,27 @@ def plot_glass_types_bar(out="glass_types.png"):
    fig.tight_layout()
    fig.savefig(out, bbox_inches="tight")
    plt.close(fig) 
+
+def plot_top_ingredients_scatter(out="ingredients_top12.png"):
+   data = get_top_ingredients(12)
+   if not data:
+       return
+   names, counts = zip(*data)
+   pos = range(1, len(names) + 1)
+   fig, ax = plt.subplots(figsize=(12, 6))
+   ax.scatter(pos, counts, s=80, color="darkorange", edgecolors="black")
+   for p, c, name in zip(pos, counts, names):
+       ax.text(p, c + 0.5, name, ha="center", fontsize=8, rotation=45)
+   ax.set_xticks(list(pos))
+   ax.set_xlabel("Ingredient Rank")
+   ax.set_ylabel("Number of Meals")
+   ax.set_title("Top Ingredients in Meals")
+   ax.grid(True, linestyle="--", alpha=0.3)
+   ensure_folder(out)
+   fig.tight_layout()
+   fig.savefig(out, bbox_inches="tight")
+   plt.close(fig)
+
 def plot_top_states_for_breweries(out="brewery_states_top10.png"):
    data = get_brewery_counts_by_state()
    if not data:
