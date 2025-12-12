@@ -208,6 +208,14 @@ class TestProject(unittest.TestCase):
         conn.close()
         self.assertGreaterEqual(cocktail_count, 100)
 
+    def test_meal_relationship_exists(self):
+       conn = get_connection()
+       curr = conn.cursor()
+       curr.execute("SELECT COUNT(*) FROM MealIngredients JOIN Meals ON MealIngredients.meal_id = Meals.meal_id JOIN Ingredients ON MealIngredients.ingredient_id = Ingredients.ingredient_id")
+       join_count = curr.fetchone()[0]
+       conn.close()
+       self.assertGreater(join_count, 0)
+
     def test_breweries_at_least_100(self):
         conn = get_connection()
         curr = conn.cursor()
