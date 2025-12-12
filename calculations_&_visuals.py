@@ -82,6 +82,21 @@ def ensure_folder(filepath):
    if folder and not os.path.exists(folder):
        os.makedirs(folder)
 
+def plot_brewery_types_pie(out="brewery_distribution.png"):
+   data = get_brewery_type_counts()
+   if not data: return
+   labels, values = zip(*data)
+   total = sum(values)
+   explode = [0.08 if v == max(values) else 0.02 for v in values]
+   fig, ax = plt.subplots(figsize=(8, 8))
+   wedges, texts, autotexts = ax.pie(values, labels=None, explode=explode, colors=plt.cm.tab20c(range(len(values))), startangle=90, pctdistance=0.7, autopct=lambda p: f"{p:.1f}%\n({int(round(p * total / 100))})")
+   ax.legend(wedges, labels, title="Brewery Types", loc="center left", bbox_to_anchor=(1.05, 0.5))
+   ax.set_title("Distribution of Brewery Types", pad=30)
+   ax.axis("equal")
+   plt.tight_layout()
+   fig.savefig(out, bbox_inches="tight")
+   plt.close(fig) 
+
 def plot_glass_types_bar(out="glass_types.png"):
    data = get_glass_type_counts()
    if not data:
