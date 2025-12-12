@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import unittest
 from data import DB_NAME, create_database
 
-
 def get_connection():
    return sqlite3.connect(DB_NAME)
 
@@ -18,7 +17,6 @@ def get_brewery_type_counts():
    return result
 
 
-
 def get_glass_type_counts():
    conn = get_connection()
    curr = conn.cursor()
@@ -26,6 +24,22 @@ def get_glass_type_counts():
    result = curr.fetchall()
    conn.close()
    return result 
+
+def get_brewery_counts_by_state(limit=10):
+   conn = get_connection()
+   curr = conn.cursor()
+   curr.execute("SELECT States.name, COUNT(*) FROM Breweries JOIN States ON Breweries.state_id = States.state_id JOIN BreweryNames ON Breweries.name_id = BreweryNames.name_id GROUP BY States.name ORDER BY COUNT(*) DESC LIMIT ?", (limit,))
+   result = curr.fetchall()
+   conn.close()
+   return result
+
+def get_brewery_counts_by_country(limit=10):
+   conn = get_connection()
+   curr = conn.cursor()
+   curr.execute("SELECT Countries.name, COUNT(*) FROM Breweries JOIN Countries ON Breweries.country_id = Countries.country_id JOIN BreweryNames ON Breweries.name_id = BreweryNames.name_id GROUP BY Countries.name ORDER BY COUNT(*) DESC LIMIT ?", (limit,))
+   result = curr.fetchall()
+   conn.close()
+   return result
 
 
 def write_calculations_to_file(path="results_summary.txt"):
