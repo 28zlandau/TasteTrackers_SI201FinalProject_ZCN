@@ -159,6 +159,14 @@ class TestProject(unittest.TestCase):
         conn.close()
         self.assertGreaterEqual(cocktail_count, 100)
 
+    def test_breweries_at_least_100(self):
+        conn = get_connection()
+        curr = conn.cursor()
+        curr.execute("SELECT COUNT(*) FROM Breweries")
+        brewery_count = curr.fetchone()[0]
+        conn.close()
+        self.assertGreaterEqual(brewery_count, 100)
+
 
 if __name__ == "__main__":
     create_database()
