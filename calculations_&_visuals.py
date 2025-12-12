@@ -192,6 +192,14 @@ class TestProject(unittest.TestCase):
     def setUp(self):
         create_database()
 
+    def test_meals_at_least_100(self):
+       conn = get_connection()
+       curr = conn.cursor()
+       curr.execute("SELECT COUNT(*) FROM Meals")
+       meal_count = curr.fetchone()[0]
+       conn.close()
+       self.assertGreaterEqual(meal_count, 100)
+
     def test_cocktails_at_least_100(self):
         conn = get_connection()
         curr = conn.cursor()
