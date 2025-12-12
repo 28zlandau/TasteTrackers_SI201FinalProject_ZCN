@@ -82,8 +82,60 @@ def get_or_create_brewery_name(curr, raw_value):
    row = curr.fetchone()
    return int(row[0]) if row else None
 
+def load_meals(limit=25):
+   create_database()
+   conn = get_connection()
+   curr = conn.cursor()
 
 
+   remaining_allowed = enforce_api_limit(curr, "Meals", 150)
+   if remaining_allowed is False:
+       conn.close()
+       return
+   limit = min(limit, remaining_allowed)
+
+
+   letters = "abcdefghijklmnopqrstuvwxyz"
+   offset = get_offset(curr, "meals")
+   added_meals = 0
+
+
+   for index in range(offset, len(letters)):
+       if added_meals >= limit:
+           break
+       letter = letters[index]
+       data = fetch_json(MEALDB_API + "search.php", {"f": letter})
+       for meal in (data.get("meals") or []):
+           if added_meals >= limit:
+               break
+           meal_id_text = meal.get("idMeal")
+           if not meal_id_text:
+               continue
+           try:
+               meal_id = int(meal_id_text)
+           except:
+               continue
+           meal_name = normalize_string(meal.get("strMeal"))
+           category_id = get_or_create_lookup(curr, "MealCategories", "category_id", "name", meal.get("strCategory"))
+           area_id = get_or_create_lookup(curr, "MealAreas", "area_id", "name", meal.get("strArea"))
+           instructions = (meal.get("strInstructions") or "").strip()
+           curr.execute("INSERT OR IGNORE INTO Meals (meal_id, name, category_id, area_id, instructions) VALUES (?, ?, ?, ?, ?)", (meal_id, meal_name, category_id, area_id, instructions))
+           curr.execute("SELECT 1 FROM Meals WHERE meal_id=?", (meal_id,))
+           if not curr.fetchone():
+               continue
+           for ingredient_index in range(1, 21):
+               ingredient_name = meal.get(f"strIngredient{ingredient_index}")
+               if ingredient_name:
+                   ingredient_id = get_or_create_ingredient(curr, ingredient_name)
+                   if ingredient_id:
+                       curr.execute("INSERT OR IGNORE INTO MealIngredients (meal_id, ingredient_id) VALUES (?, ?)", (meal_id, ingredient_id))
+           added_meals += 1
+       offset = index + 1
+
+
+   set_offset(curr, "meals", offset)
+   conn.commit()
+   conn.close()
 
 def load_cocktails(limit=25):
    create_database()
