@@ -66,7 +66,14 @@ def get_or_create_lookup(curr, table_name, id_column, name_column, raw_value, de
    row = curr.fetchone()
    return int(row[0]) if row else None 
 
-
+def get_or_create_ingredient(curr, raw_value):
+   cleaned_name = normalize_string(raw_value)
+   if not cleaned_name:
+       return None
+   curr.execute("INSERT OR IGNORE INTO Ingredients (name) VALUES (?)", (cleaned_name,))
+   curr.execute("SELECT ingredient_id FROM Ingredients WHERE name = ?", (cleaned_name,))
+   row = curr.fetchone()
+   return int(row[0]) if row else None
 
 def get_or_create_brewery_name(curr, raw_value):
    cleaned = normalize_string(raw_value)
