@@ -119,6 +119,26 @@ def plot_glass_types_bar(out="glass_types.png"):
    fig.tight_layout()
    fig.savefig(out, bbox_inches="tight")
    plt.close(fig) 
+def plot_top_states_for_breweries(out="brewery_states_top10.png"):
+   data = get_brewery_counts_by_state()
+   if not data:
+       return
+   labels, counts = zip(*data)
+   pos = range(len(labels))
+   fig, ax = plt.subplots(figsize=(10, 6))
+   colors = plt.cm.Greens(range(len(labels)))
+   bars = ax.barh(pos, counts, color=colors)
+   ax.set_yticks(pos)
+   ax.set_yticklabels(labels)
+   ax.invert_yaxis()
+   ax.set_xlabel("Number of Breweries")
+   ax.set_title("Top States by Number of Breweries")
+   ax.grid(axis="x", linestyle="--", alpha=0.3)
+   for bar, c in zip(bars, counts):
+       ax.text(bar.get_width() + 0.2, bar.get_y() + bar.get_height()/2, str(c), va="center")
+   ensure_folder(out)
+   fig.savefig(out, bbox_inches="tight")
+   plt.close(fig)
 
 def run_all_analysis():
     write_calculations_to_file("results_summary.txt")
