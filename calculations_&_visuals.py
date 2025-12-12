@@ -48,6 +48,19 @@ def get_brewery_counts_by_country(limit=10):
    conn.close()
    return result
 
+def get_meal_ingredient_summary():
+   conn = get_connection()
+   curr = conn.cursor()
+   curr.execute("SELECT COUNT(*) FROM Meals")
+   total_meals = curr.fetchone()[0]
+   curr.execute("SELECT Meals.meal_id, COUNT(MealIngredients.ingredient_id) FROM Meals LEFT JOIN MealIngredients ON Meals.meal_id = MealIngredients.meal_id GROUP BY Meals.meal_id")
+   ingredient_groups = curr.fetchall()
+   conn.close()
+   if total_meals == 0:
+       return {"total_meals": 0.0, "avg_ingredients_per_meal": 0.0}
+   total_ingredients = sum(g[1] for g in ingredient_groups)
+   avg = total_ingredients / float(total_meals)
+   return {"total_meals": float(total_meals), "avg_ingredients_per_meal": float(avg)}
 
 def write_calculations_to_file(path="results_summary.txt"):
    brewery_types = get_brewery_type_counts()
