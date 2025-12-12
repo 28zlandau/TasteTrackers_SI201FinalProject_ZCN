@@ -121,7 +121,48 @@ def load_cocktails(limit=25):
    set_offset(curr, "cocktails", offset)
    conn.commit()
    conn.close() 
-   
+def load_breweries(limit=25):
+   create_database()
+   conn = get_connection()
+   curr = conn.cursor()
+
+
+   remaining_allowed = enforce_api_limit(curr, "Breweries", 150)
+   if remaining_allowed is False:
+       conn.close()
+       return
+   limit = min(limit, remaining_allowed)
+
+
+   page_number = get_offset(curr, "breweries") or 1
+   added = 0
+
+
+   while added < limit:
+       data = fetch_json(BREWERY_API, {"per_page": 50, "page": page_number})
+       if not data:
+           break
+       for brewery_record in data:
+           if added >= limit:
+               break
+           api_id = brewery_record.get("id")
+           if not api_id:
+               continue
+           name_id = get_or_create_brewery_name(curr, brewery_record.get("name"))
+           type_id = get_or_create_lookup(curr, "BreweryTypes", "type_id", "name", brewery_record.get("brewery_type"))
+           city_id = get_or_create_lookup(curr, "Cities", "city_id", "name", brewery_record.get("city"))
+           state_id = get_or_create_lookup(curr, "States", "state_id", "name", brewery_record.get("state"))
+           country_id = get_or_create_lookup(curr, "Countries", "country_id", "name", brewery_record.get("country"))
+           curr.execute("INSERT OR IGNORE INTO Breweries (api_id, name_id, type_id, city_id, state_id, country_id) VALUES (?, ?, ?, ?, ?, ?)", (api_id, name_id, type_id, city_id, state_id, country_id))
+           curr.execute("SELECT 1 FROM Breweries WHERE api_id=?", (api_id,))
+           if curr.fetchone():
+               added += 1
+       page_number += 1
+
+
+   set_offset(curr, "breweries", page_number)
+   conn.commit()
+   conn.close()
 
 def main():
    create_database()
