@@ -16,7 +16,6 @@ def get_brewery_type_counts():
    conn.close()
    return result
 
-
 def get_glass_type_counts():
    conn = get_connection()
    curr = conn.cursor()
@@ -24,6 +23,14 @@ def get_glass_type_counts():
    result = curr.fetchall()
    conn.close()
    return result 
+
+def get_top_ingredients(limit=12):
+   conn = get_connection()
+   curr = conn.cursor()
+   curr.execute("SELECT Ingredients.name, COUNT(*) FROM MealIngredients JOIN Ingredients ON MealIngredients.ingredient_id = Ingredients.ingredient_id GROUP BY Ingredients.name ORDER BY COUNT(*) DESC LIMIT ?", (limit,))
+   result = curr.fetchall()
+   conn.close()
+   return result
 
 def get_brewery_counts_by_state(limit=10):
    conn = get_connection()
