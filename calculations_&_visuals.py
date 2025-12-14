@@ -181,7 +181,7 @@ def plot_top_states_for_breweries(out="brewery_states_top10.png"):
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
 
-def run_all_analysis():
+def main():
      write_calculations_to_file("results_summary.txt")
      plot_brewery_types_pie("brewery_distribution.png")
      plot_glass_types_bar("glass_types.png")
@@ -227,4 +227,4 @@ class TestProject(unittest.TestCase):
 if __name__ == "__main__":
     create_database()
     unittest.main(exit=False, verbosity=2)
-    run_all_analysis()
+    main()
