@@ -1,0 +1,70 @@
+Brewery Types by Count
+  Micro: 75
+  Brewpub: 40
+  Planning: 10
+  Large: 7
+  Closed: 7
+  Regional: 6
+  Contract: 3
+  Taproom: 2
+
+Cocktail Glass Types by Count
+  Cocktail Glass: 47
+  Highball Glass: 28
+  Collins Glass: 17
+  Shot Glass: 12
+  Old-Fashioned Glass: 8
+  Coffee Mug: 8
+  Punch Bowl: 5
+  Whiskey Sour Glass: 4
+  Irish Coffee Cup: 4
+  Martini Glass: 3
+  Margarita Glass: 3
+  Champagne Flute: 2
+  Beer Mug: 2
+  Wine Glass: 1
+  Pint Glass: 1
+  Mason Jar: 1
+  Hurricane Glass: 1
+  Coupe Glass: 1
+  Beer Pilsner: 1
+  Balloon Glass: 1
+
+Top Ingredients in Meals
+  Salt: 56
+  Garlic: 55
+  Onion: 45
+  Olive Oil: 44
+  Butter: 30
+  Water: 27
+  Pepper: 23
+  Sugar: 22
+  Milk: 19
+  Parsley: 18
+  Vegetable Oil: 17
+  Thyme: 17
+
+Top States by Number of Breweries
+  California: 16
+  Washington: 14
+  New York: 8
+  Colorado: 8
+  Texas: 7
+  Oregon: 6
+  Wisconsin: 4
+  Pennsylvania: 4
+  Missouri: 4
+  Minnesota: 4
+
+Top Countries by Number of Breweries
+  United States: 139
+  Australia: 4
+  South Africa: 2
+  England: 2
+  South Korea: 1
+  Japan: 1
+  Ireland: 1
+
+Meal and Ingredient Summary
+  Total meals: 150
+  Average ingredients per meal: 9.74
